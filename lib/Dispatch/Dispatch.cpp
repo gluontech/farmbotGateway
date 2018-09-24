@@ -16,8 +16,8 @@ void taskDispatch( void * parameter)
        switch(sreading[0])
         {
           case soilS:
-            if (sreading[1] <= 39) waterControl();
-            else if (sreading[1] > 55) turnOffWater();
+            if (sreading[1] <= 45) waterControl();
+            else if (sreading[1] > 60) turnOffWater();
             break;
           case tempS:
             if (sreading[1] <= 15) heatControl();

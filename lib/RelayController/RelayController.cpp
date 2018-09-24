@@ -2,7 +2,7 @@
 Timer t;
 // Controller PIN
 #define waterRelayPin 16      //Water valve relay
-#define heatRelayPin  5      //Heater relay     
+#define heatRelayPin  4      //Heater relay     
 #define fanRelayPin 17      //Fan relay   
 // LED PIN
 #define redLedPin 19
@@ -20,6 +20,9 @@ void setupPinMode(void)
   pinMode(waterRelayPin, OUTPUT); //water relay
   pinMode(heatRelayPin, OUTPUT); // heater relay
   pinMode(fanRelayPin, OUTPUT); // fan relay
+  digitalWrite(waterRelayPin, HIGH); // turn off controler RELAY
+  digitalWrite(heatRelayPin, HIGH); // turn off controler RELAY
+  digitalWrite(fanRelayPin, HIGH); // turn off controler RELAY
 }
 
 // turn on/off controller LED
@@ -31,12 +34,12 @@ void blinkLed(int ledPin, int ledState)
 void turnOffWater()
 {
   int pinState = digitalRead(waterRelayPin);
- // int pinState = digitalRead(WATER_PIN);
-  if (pinState == HIGH)
+ 
+  if (pinState == LOW)
     {
        Serial.println("water relay OFF" ); 
       
-       digitalWrite(waterRelayPin, LOW); // turn off controler RELAY
+       digitalWrite(waterRelayPin, HIGH); // turn off controler RELAY
     }
 
    int ledState =  digitalRead(whiteLedPin); 
@@ -49,12 +52,12 @@ void turnOffWater()
 void turnOffHeat()
 {
   int pinState = digitalRead(heatRelayPin);
- // int pinState = digitalRead(WATER_PIN);
-  if (pinState == HIGH)
+
+  if (pinState == LOW)
     {
        Serial.println("Heat relay OFF" ); 
       
-       digitalWrite(heatRelayPin, LOW); // turn off controler RELAY
+       digitalWrite(heatRelayPin, HIGH); // turn off controler RELAY
     }
 
    int ledState =  digitalRead(redLedPin); 
@@ -67,11 +70,11 @@ void turnOffHeat()
 void turnOffFan()
 {
   int pinState = digitalRead(fanRelayPin);
- // int pinState = digitalRead(WATER_PIN);
-  if (pinState == HIGH)
+
+  if (pinState == LOW)
     {
        Serial.println("Fan relay OFF" ); 
-        digitalWrite(fanRelayPin, LOW); // turn off controler RELAY
+        digitalWrite(fanRelayPin, HIGH); // turn off controler RELAY
     }
 
    int ledState =  digitalRead(yellowLedPin); 
@@ -88,10 +91,10 @@ void waterControl()
   int pinState = digitalRead(waterRelayPin);
   int ledState = digitalRead(whiteLedPin);
  
-  if (pinState != HIGH)
+  if (pinState != LOW)
     {
       Serial.println("water relay ON" ); 
-       digitalWrite(waterRelayPin, HIGH); 
+       digitalWrite(waterRelayPin, LOW); 
       
       if (ledState != HIGH)
       {
@@ -108,10 +111,10 @@ void heatControl()
   int pinState = digitalRead(heatRelayPin);
   int ledState = digitalRead(redLedPin);
  
-  if (pinState != HIGH)
+  if (pinState != LOW)
     {
       Serial.println("Heater relay ON" ); 
-       digitalWrite(heatRelayPin, HIGH); 
+       digitalWrite(heatRelayPin, LOW); 
       
       if (ledState != HIGH)
       {
@@ -128,10 +131,10 @@ void fanControl()
   int pinState = digitalRead(fanRelayPin);
   int ledState = digitalRead(yellowLedPin);
  
-  if (pinState != HIGH)
+  if (pinState != LOW)
     {
       Serial.println("fan relay ON" ); 
-       digitalWrite(fanRelayPin, HIGH); 
+       digitalWrite(fanRelayPin, LOW); 
       
       if (ledState != HIGH)
       {
