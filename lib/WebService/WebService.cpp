@@ -114,6 +114,20 @@ void webServiceSetup()
            turnOffWater();
         });
 
+  // water relay on
+   server.on("/put/wateron2", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           waterControl2();
+        });
+
+ // water relay off
+  server.on("/put/wateroff2", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           turnOffWater2();
+        });
+
 // fan relayd on
    server.on("/put/fanon", HTTP_PUT, [](AsyncWebServerRequest *request)
         {
@@ -126,6 +140,46 @@ void webServiceSetup()
         {
            request->send(200, "text/plain", "");
            turnOffFan();
+        });
+
+
+    server.on("/put/heaton", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           heatControl();
+        });
+
+// fan relay off
+   server.on("/put/heatoff", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           turnOffHeat();
+        });
+
+  server.on("/put/heaton2", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           heatControl2();
+        });
+
+// fan relay off
+   server.on("/put/heatoff2", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           turnOffHeat2();
+        });
+
+server.on("/put/humidon", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           humidControl();
+        });
+
+// fan relay off
+   server.on("/put/humidoff", HTTP_PUT, [](AsyncWebServerRequest *request)
+        {
+           request->send(200, "text/plain", "");
+           turnOffHumidifier();
         });
 
   server.begin();

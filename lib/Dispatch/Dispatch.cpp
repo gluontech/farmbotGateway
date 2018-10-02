@@ -20,11 +20,14 @@ void taskDispatch( void * parameter)
             else if (sreading[1] > 60) turnOffWater();
             break;
           case tempS:
-            if (sreading[1] <= 15) heatControl();
-            else if (sreading[1] > 32) fanControl();
+            if (sreading[1] <= 15) {
+              heatControl();
+              heatControl2();
+              }
+           else if (sreading[1] > 32) fanControl();
             break;
           case humidS:
-            if (sreading[1] <= 25) humidControl();
+            if (sreading[1] <= 20) humidControl();
             else if (sreading[1] > 75) fanControl();
             break;
           case lightS:
