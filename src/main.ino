@@ -1,8 +1,5 @@
 #include "EspNowSlave.h"
-#include "Dispatch.h"
 #include "WebService.h"
- //#include "Bluetooth.h"
-
 
 void setup() 
 {
@@ -12,25 +9,18 @@ void setup()
   createQ();
 
    setupEspnow(); // setup SoftApp wifi hot spot
+   defaultThresholdSetup();
    webServiceSetup();
    //bluetoothSetup();
   
 // Task that receive data from queue and dispatch controler
   xTaskCreate(
-    taskDispatch,
-    "taskDispatch",
+    taskAutoController,
+    "taskAutoController",
     2000,
     NULL,
     1,
     NULL);  
-
-  /* xTaskCreate(
-    taskBluetooth,
-    "taskBluetooth",
-    3000,
-    NULL,
-    1,
-    NULL); */
 } 
 
 void loop() {}

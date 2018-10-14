@@ -3,11 +3,23 @@
 #include "AsyncTCP.h"
 #include "ESPAsyncWebServer.h"
 #include "WebService.h"
-#include "Queue.h"
-#include "RelayController.h"
 #include "ArduinoJson.h"
+#include <iostream>
+#include <string>
+#include <Preferences.h>
+using namespace std; 
+
 
 AsyncWebServer server(80);
+Preferences preferences;
+// default values
+int32_t soilLow, soilHigh, tempLow, tempHigh, humidLow, humidHigh;
+const char * strSoillow = "soillow";
+const char * strSoilhigh = "soilhigh";
+const char * strTemplow = "templow";
+const char * strTemphigh = "temphigh";
+const char * strHumidlow = "humidlow";
+const char * strHumidhigh = "humidhigh";
 
 String getSoil()
 {
@@ -17,8 +29,7 @@ String getSoil()
    xStatus = xQueueReceive(soilQ, &sreading, pdMS_TO_TICKS(80)); 
    if(xStatus == pdPASS)   
    {
-      returnStr =  (String)sreading[1];
-    
+      returnStr =  (String)sreading[1];   
    }
    else
       returnStr = "0";
@@ -90,6 +101,20 @@ String createJsonResponse()
   root.printTo(json);
   return json;
 }
+
+// store default threshold to flash mem 
+void defaultThresholdSetup()
+{
+  preferences.begin("auto_threshold",false);
+  preferences.putInt(strSoillow, 45);
+  preferences.putInt(strSoilhigh, 65);
+  preferences.putInt(strTemplow, 15);
+  preferences.putInt(strTemphigh, 32);
+  preferences.putInt(strHumidlow, 20);
+  preferences.putInt(strHumidhigh, 80);
+  preferences.end();
+}
+
 
 void webServiceSetup()
 {
@@ -182,8 +207,119 @@ server.on("/put/humidon", HTTP_PUT, [](AsyncWebServerRequest *request)
            turnOffHumidifier();
         });
 
-  server.begin();
+  
+  // User's customized thresholds
+  server.on("/", HTTP_GET, [](AsyncWebServerRequest *request){
+    int paramsNr = request->params();
+    
+    preferences.begin("auto_threshold",false);
+ 
+    for(int i=0;i<paramsNr;i++){
+ 
+        AsyncWebParameter* p = request->getParam(i);
 
+        if(p->name() == "soillow")
+         {
+          preferences.remove(strSoillow); // remove existing key
+          Serial.println("soil low: ");
+        //  soilLow = atoi((p->value()).c_str());
+        //  soilLow = strtof((p->value()).c_str(), NULL);
+           preferences.putInt(strSoillow, atoi((p->value()).c_str())); // reinsert new value     
+          Serial.println(preferences.getInt(strSoillow));    
+         }
+
+       if(p->name() == "soilhigh")
+         {
+            Serial.println("soil high: ");
+          preferences.remove(strSoilhigh); // remove existing key
+          preferences.putInt(strSoilhigh, atoi((p->value()).c_str())); // reinsert new value   
+           Serial.println(preferences.getInt(strSoilhigh));       
+         }
+
+         if(p->name() == "templow")
+         {
+          preferences.remove(strTemplow); // remove existing key
+          Serial.print("temperature low: ");
+          preferences.putInt(strTemplow, atoi((p->value()).c_str())); // reinsert new value    
+          Serial.println(preferences.getInt(strTemplow));
+         }
+
+        if(p->name() == "temphigh")
+         {
+          Serial.print("temperature high: ");
+          preferences.remove(strTemphigh); // remove existing key
+          preferences.putInt(strTemphigh, atoi((p->value()).c_str())); // reinsert new value    
+          Serial.println(preferences.getInt(strTemphigh));  
+         }
+
+         if(p->name() == "humidhigh")
+         {
+          Serial.print("humid high value: ");
+          preferences.remove(strHumidhigh); // remove existing key
+          preferences.putInt(strHumidhigh, atoi((p->value()).c_str())); // reinsert new value  
+          Serial.println(preferences.getInt(strHumidhigh));    
+         }
+
+        if(p->name() == "humidlow")
+         {
+           Serial.print("humid low: ");
+          preferences.remove(strHumidlow); // remove existing key
+          preferences.putInt(strHumidlow, atoi((p->value()).c_str())); // reinsert new value    
+          Serial.println(preferences.getInt(strHumidlow));    
+         }
+       }
+     preferences.end();
+    request->send(200, "text/plain", "");
+  });
+
+  server.begin();
 }
 
+
+void taskAutoController(void * parameter)
+{
+   //controlID sdata;
+  uint8_t sreading[2];
+  BaseType_t xStatus; /* status of receiving data */
+    
+ while(1)
+  {
+    preferences.begin("auto_threshold",false);
+    soilLow = preferences.getInt(strSoillow);
+    soilHigh = preferences.getInt(strSoilhigh);
+    tempLow = preferences.getInt(strTemplow);
+    tempHigh = preferences.getInt(strTemphigh);
+    humidLow = preferences.getInt(strHumidlow);
+    humidHigh = preferences.getInt(strHumidhigh);
+
+    xStatus = xQueueReceive(controlQ, &sreading, pdMS_TO_TICKS(80)); 
+     if(xStatus == pdPASS)
+    {
+       switch(sreading[0])
+        {
+          case soilS:
+            if (sreading[1] <= soilLow) waterControl();
+            else if (sreading[1] > soilHigh) turnOffWater();
+            break;
+          case tempS:
+            if (sreading[1] <= tempLow) {
+              heatControl();
+              heatControl2();
+              }
+           else if (sreading[1] > tempHigh) fanControl();
+            break;
+          case humidS:
+            if (sreading[1] <= humidLow) humidControl();
+            else if (sreading[1] > humidHigh) fanControl();
+            break;
+          case lightS:
+            // calculate average full sun hours
+            break;
+        }
+    }
+     t.update();
+     preferences.end();
+  }
+    vTaskDelete( NULL );  
+}
 
