@@ -198,6 +198,7 @@ server.on("/put/humidon", HTTP_PUT, [](AsyncWebServerRequest *request)
         {
            request->send(200, "text/plain", "");
            humidControl();
+           
         });
 
 // fan relay off

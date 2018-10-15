@@ -6,7 +6,7 @@ Timer t;
 
 #define heatRelayPin 16      //Heater relay     
 #define fanRelayPin 17      //Fan relay   
-#define humidRelayPin 51    //Humidifier
+#define humidRelayPin 5   //Humidifier
 #define heatRelayPin2 18 // heater 2
 
 // LED PIN
