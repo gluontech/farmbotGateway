@@ -9,6 +9,7 @@ Timer t;
 #define humidRelayPin 5   //Humidifier
 #define heatRelayPin2 18 // heater 2
 
+
 // LED PIN
 #define redLedPin 27
 #define whiteLedPin 25
@@ -55,8 +56,7 @@ void turnOffWater()
   if (pinState == LOW)
     {
        Serial.println("water relay OFF" ); 
-      
-       digitalWrite(waterRelayPin, HIGH); // turn off controler RELAY
+      digitalWrite(waterRelayPin, HIGH); // turn off controler RELAY
     }
 
    int ledState =  digitalRead(whiteLedPin); 
@@ -72,9 +72,8 @@ void turnOffWater2()
  
   if (pinState == LOW)
     {
-       Serial.println("water relay OFF" ); 
-      
-       digitalWrite(waterRelayPin2, HIGH); // turn off controler RELAY
+      Serial.println("water relay OFF" ); 
+      digitalWrite(waterRelayPin2, HIGH); // turn off controler relay
     }
 
   /*  int ledState =  digitalRead(whiteLedPin); 
@@ -91,9 +90,7 @@ void turnOffHeat()
 
   if (pinState == LOW)
     {
-       Serial.println("Heat relay OFF" ); 
-      
-       digitalWrite(heatRelayPin, HIGH); // turn off controler RELAY
+        digitalWrite(heatRelayPin, HIGH); // turn off controler RELAY
     }
 
    int ledState =  digitalRead(redLedPin); 
@@ -109,8 +106,6 @@ void turnOffHeat2()
 
   if (pinState == LOW)
     {
-       Serial.println("Heat relay OFF" ); 
-      
        digitalWrite(heatRelayPin2, HIGH); // turn off controler RELAY
     }
 }
@@ -121,7 +116,6 @@ void turnOffFan()
 
   if (pinState == LOW)
     {
-       Serial.println("Fan relay OFF" ); 
         digitalWrite(fanRelayPin, HIGH); // turn off controler RELAY
     }
 
@@ -138,7 +132,6 @@ void turnOffFan()
 
   if (pinState == LOW)
     {
-       Serial.println("Humidifier relay OFF" ); 
         digitalWrite(humidRelayPin, HIGH); // turn off controler RELAY
     }
  }
@@ -152,7 +145,6 @@ void waterControl()
  
   if (pinState != LOW)
     {
-      Serial.println("water relay ON" ); 
        digitalWrite(waterRelayPin, LOW); 
       
       if (ledState != HIGH)
@@ -173,9 +165,7 @@ void waterControl2()
  
   if (pinState != LOW)
     {
-      Serial.println("water relay2 ON" ); 
        digitalWrite(waterRelayPin2, LOW); 
-      
     /*   if (ledState != HIGH)
       {
         blinkLed(whiteLedPin, HIGH);
@@ -192,9 +182,7 @@ void heatControl()
  
   if (pinState != LOW)
     {
-      Serial.println("Heater relay ON" ); 
-       digitalWrite(heatRelayPin, LOW); 
-      
+      digitalWrite(heatRelayPin, LOW);
       if (ledState != HIGH)
       {
         blinkLed(redLedPin, HIGH);
@@ -206,13 +194,9 @@ void heatControl()
 
 void heatControl2()
 {
-
   int pinState = digitalRead(heatRelayPin2);
-
- 
   if (pinState != LOW)
     {
-      Serial.println("Heater2 relay ON" ); 
        digitalWrite(heatRelayPin2, LOW); 
        t.after(heatOnTime, turnOffHeat2);
     }
@@ -220,15 +204,12 @@ void heatControl2()
 
 void fanControl()
 {
-  
   int pinState = digitalRead(fanRelayPin);
   int ledState = digitalRead(yellowLedPin);
  
   if (pinState != LOW)
     {
-      Serial.println("fan relay ON" ); 
        digitalWrite(fanRelayPin, LOW); 
-      
       if (ledState != HIGH)
       {
         blinkLed(yellowLedPin, HIGH);
@@ -244,8 +225,9 @@ void humidControl()
  
   if (pinState != LOW)
     {
-      Serial.println("Humidifier relay ON" ); 
-       digitalWrite(humidRelayPin, LOW);      
+       digitalWrite(humidRelayPin, LOW);  
        t.after(humidOnTime, turnOffHumidifier);    
     }
 }
+
+

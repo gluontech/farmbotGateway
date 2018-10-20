@@ -13,9 +13,11 @@ using namespace std;
 AsyncWebServer server(80);
 Preferences preferences;
 // default values
-int32_t soilLow, soilHigh, tempLow, tempHigh, humidLow, humidHigh;
+int16_t soilLow, soilHigh, tempLow, tempHigh, humidLow, humidHigh;
 const char * strSoillow = "soillow";
 const char * strSoilhigh = "soilhigh";
+const char * strSoillow2 = "soillow2";
+const char * strSoilhigh2 = "soilhigh2";
 const char * strTemplow = "templow";
 const char * strTemphigh = "temphigh";
 const char * strHumidlow = "humidlow";
@@ -107,7 +109,9 @@ void defaultThresholdSetup()
 {
   preferences.begin("auto_threshold",false);
   preferences.putInt(strSoillow, 45);
-  preferences.putInt(strSoilhigh, 65);
+  preferences.putInt(strSoilhigh, 60);
+  preferences.putInt(strSoillow2, 45);
+  preferences.putInt(strSoilhigh2, 60);
   preferences.putInt(strTemplow, 15);
   preferences.putInt(strTemphigh, 32);
   preferences.putInt(strHumidlow, 20);
@@ -222,51 +226,51 @@ server.on("/put/humidon", HTTP_PUT, [](AsyncWebServerRequest *request)
         if(p->name() == "soillow")
          {
           preferences.remove(strSoillow); // remove existing key
-          Serial.println("soil low: ");
-        //  soilLow = atoi((p->value()).c_str());
-        //  soilLow = strtof((p->value()).c_str(), NULL);
+            //  soilLow = strtof((p->value()).c_str(), NULL);
            preferences.putInt(strSoillow, atoi((p->value()).c_str())); // reinsert new value     
-          Serial.println(preferences.getInt(strSoillow));    
+ 
          }
 
        if(p->name() == "soilhigh")
          {
-            Serial.println("soil high: ");
           preferences.remove(strSoilhigh); // remove existing key
           preferences.putInt(strSoilhigh, atoi((p->value()).c_str())); // reinsert new value   
-           Serial.println(preferences.getInt(strSoilhigh));       
+         }
+
+         if(p->name() == "soillow2")
+         {
+          preferences.remove(strSoillow2); // remove existing key
+          preferences.putInt(strSoillow2, atoi((p->value()).c_str())); // reinsert new value     
+         }
+
+       if(p->name() == "soilhigh2")
+         {
+           preferences.remove(strSoilhigh2); // remove existing key
+           preferences.putInt(strSoilhigh2, atoi((p->value()).c_str())); // reinsert new value         
          }
 
          if(p->name() == "templow")
          {
           preferences.remove(strTemplow); // remove existing key
-          Serial.print("temperature low: ");
           preferences.putInt(strTemplow, atoi((p->value()).c_str())); // reinsert new value    
-          Serial.println(preferences.getInt(strTemplow));
          }
 
         if(p->name() == "temphigh")
          {
-          Serial.print("temperature high: ");
           preferences.remove(strTemphigh); // remove existing key
-          preferences.putInt(strTemphigh, atoi((p->value()).c_str())); // reinsert new value    
-          Serial.println(preferences.getInt(strTemphigh));  
+          preferences.putInt(strTemphigh, atoi((p->value()).c_str())); // reinsert new value       
          }
 
          if(p->name() == "humidhigh")
          {
-          Serial.print("humid high value: ");
           preferences.remove(strHumidhigh); // remove existing key
-          preferences.putInt(strHumidhigh, atoi((p->value()).c_str())); // reinsert new value  
-          Serial.println(preferences.getInt(strHumidhigh));    
+          preferences.putInt(strHumidhigh, atoi((p->value()).c_str())); // reinsert new v
          }
 
         if(p->name() == "humidlow")
          {
-           Serial.print("humid low: ");
           preferences.remove(strHumidlow); // remove existing key
           preferences.putInt(strHumidlow, atoi((p->value()).c_str())); // reinsert new value    
-          Serial.println(preferences.getInt(strHumidlow));    
          }
        }
      preferences.end();
@@ -300,18 +304,24 @@ void taskAutoController(void * parameter)
         {
           case soilS:
             if (sreading[1] <= soilLow) waterControl();
-            else if (sreading[1] > soilHigh) turnOffWater();
+            else if (sreading[1] >= soilHigh) turnOffWater();
             break;
           case tempS:
             if (sreading[1] <= tempLow) {
               heatControl();
               heatControl2();
               }
-           else if (sreading[1] > tempHigh) fanControl();
+           else if (sreading[1] >= tempHigh)  {
+             turnOffHeat();
+             fanControl();
+            }
             break;
           case humidS:
             if (sreading[1] <= humidLow) humidControl();
-            else if (sreading[1] > humidHigh) fanControl();
+            else if (sreading[1] >= humidHigh) {
+              turnOffHumidifier();
+              fanControl();
+            }
             break;
           case lightS:
             // calculate average full sun hours
